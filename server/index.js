@@ -34,38 +34,13 @@ const instruments = [
 
 // Generate random notes for an instrument
 function generateNotes(instrument, key, numBars, tempo) {
-  const notes = [];
-  const beatsPerBar = 4; // 4/4 time signature
-  const totalBeats = numBars * beatsPerBar;
-  
-  // Define note durations (in beats)
-  const durations = [0.25, 0.5, 1, 2]; // 16th, 8th, quarter, half notes
-  
-  for (let beat = 0; beat < totalBeats;) {
-    let duration = durations[Math.floor(Math.random() * durations.length)];
-    
-    // Ensure we don't exceed the bar
-    if (beat + duration > totalBeats) {
-      duration = totalBeats - beat;
-    }
-    
-    // Generate random note within instrument range
-    const noteNumber = Math.floor(Math.random() * (instrument.range.max - instrument.range.min + 1)) + instrument.range.min;
-    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const noteName = noteNames[noteNumber % 12];
-    const octave = Math.floor(noteNumber / 12) - 1;
-    
-    notes.push({
-      note: noteName,
-      octave: octave,
-      duration: duration,
-      startBeat: beat
-    });
-    
-    beat += duration;
-  }
-  
-  return notes;
+  // Always generate 8 quarter notes of C4 for preview
+  return Array.from({ length: numBars * 4 }, (_, i) => ({
+    note: 'C',
+    octave: 4,
+    duration: 1,
+    startBeat: i
+  }));
 }
 
 // Create a new session

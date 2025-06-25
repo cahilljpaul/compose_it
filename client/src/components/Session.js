@@ -289,7 +289,7 @@ const Session = () => {
             <MusicScore 
               music={music} 
               instrument={selectedInstrument}
-              key={session.key}
+              musicKey={session.key}
               tempo={session.tempo}
             />
           </div>

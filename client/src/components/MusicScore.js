@@ -2,58 +2,69 @@ import React, { useEffect, useRef } from 'react';
 import { Factory } from 'vexflow';
 import './MusicScore.css';
 
-const MusicScore = ({ music, instrument, key, tempo }) => {
+const MusicScore = ({ music, instrument, musicKey, tempo }) => {
   const scoreRef = useRef(null);
 
   useEffect(() => {
     if (!music || !scoreRef.current) return;
 
-    // Clear previous content
+    // Defensive: clear previous content
     scoreRef.current.innerHTML = '';
 
+    // Defensive: log the ref
+    console.log('scoreRef.current:', scoreRef.current);
+
     try {
-      // Initialize VexFlow
+      // Explicitly set renderer type to SVG (backend: 1)
       const factory = new Factory({
-        renderer: { elementId: scoreRef.current, width: 800, height: 200 }
+        renderer: { element: scoreRef.current, width: 1000, height: 220, backend: 1 }
       });
 
       const score = factory.EasyScore();
-      const system = factory.System();
 
-      // Create the score - convert our music data to VexFlow format
-      const notes = music.map(note => {
-        const noteName = note.note;
-        const octave = note.octave;
-        const duration = note.duration;
-        
-        // Convert duration to VexFlow notation
-        let durationStr = 'q'; // quarter note by default
-        if (duration === 0.25) durationStr = '16';
-        else if (duration === 0.5) durationStr = '8';
-        else if (duration === 1) durationStr = 'q';
-        else if (duration === 2) durationStr = 'h';
-        else if (duration === 4) durationStr = 'w';
+      // Split notes into measures of 4 beats (for 4/4 time)
+      const measures = [];
+      let currentMeasure = [];
+      let currentBeats = 0;
+      music.forEach(note => {
+        currentMeasure.push(note);
+        currentBeats += note.duration;
+        if (currentBeats >= 4) {
+          measures.push(currentMeasure);
+          currentMeasure = [];
+          currentBeats = 0;
+        }
+      });
+      if (currentMeasure.length > 0) {
+        measures.push(currentMeasure);
+      }
 
-        return `${noteName}${octave}/${durationStr}`;
-      }).join(', ');
+      const notesString = measures
+        .map(measureNotes =>
+          measureNotes.map(note => {
+            const noteName = note.note;
+            const octave = note.octave;
+            const duration = note.duration;
+            let durationStr = 'q';
+            if (duration === 0.25) durationStr = '16';
+            else if (duration === 0.5) durationStr = '8';
+            else if (duration === 1) durationStr = 'q';
+            else if (duration === 2) durationStr = 'h';
+            else if (duration === 4) durationStr = 'w';
+            return `${noteName}${octave}/${durationStr}`;
+          }).join(', ')
+        )
+        .join(' | ');
 
-      console.log('VexFlow notes string:', notes);
-
-      // Add the notes to the system
-      system
-        .addStave({
-          voices: [
-            score.voice(score.notes(notes))
-          ]
-        })
-        .addClef(instrument.clef === 'bass' ? 'bass' : 'treble')
-        .addTimeSignature('4/4');
-
-      // Render the score
+      const voice = score.voice(score.notes(notesString));
+      const stave = factory.Stave({
+        voices: [voice]
+      });
+      stave.addClef(instrument.clef === 'bass' ? 'bass' : 'treble');
+      stave.addTimeSignature('4/4');
       factory.draw();
     } catch (error) {
       console.error('Error rendering music score:', error);
-      // Fallback: show the notes as text
       scoreRef.current.innerHTML = `
         <div style="padding: 20px; text-align: center;">
           <h4>Music Score (Text Format)</h4>
@@ -65,8 +76,7 @@ const MusicScore = ({ music, instrument, key, tempo }) => {
         </div>
       `;
     }
-
-  }, [music, instrument, key, tempo]);
+  }, [music, instrument, musicKey, tempo]);
 
   if (!music) {
     return (
@@ -81,7 +91,7 @@ const MusicScore = ({ music, instrument, key, tempo }) => {
       <div className="score-info">
         <h3>{instrument.name} Score</h3>
         <div className="score-details">
-          <span>Key: {key}</span>
+          <span>Key: {musicKey}</span>
           <span>Tempo: {tempo} BPM</span>
           <span>Clef: {instrument.clef}</span>
         </div>
