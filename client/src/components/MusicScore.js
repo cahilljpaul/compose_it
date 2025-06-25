@@ -1,6 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { Factory } from 'vexflow';
+import { Renderer, Stave, StaveNote, Voice, Formatter } from 'vexflow';
 import './MusicScore.css';
+
+// Helper to map numeric durations to VexFlow duration strings
+function getVexflowDuration(duration) {
+  if (duration === 1) return 'q';      // quarter note
+  if (duration === 2) return 'h';      // half note
+  if (duration === 0.5) return '8';    // eighth note
+  if (duration === 0.25) return '16';  // sixteenth note
+  if (duration === 4) return 'w';      // whole note
+  return 'q'; // fallback
+}
 
 const MusicScore = ({ music, instrument, musicKey, tempo }) => {
   const scoreRef = useRef(null);
@@ -8,28 +18,46 @@ const MusicScore = ({ music, instrument, musicKey, tempo }) => {
   useEffect(() => {
     if (!music || !scoreRef.current) return;
 
-    // Defensive: clear previous content
+    // Clear previous content
     scoreRef.current.innerHTML = '';
-
-    // Defensive: log the ref
     console.log('scoreRef.current:', scoreRef.current);
 
     try {
-      // Explicitly set renderer type to SVG (backend: 'svg' for VexFlow 4.x+)
-      const factory = new Factory({
-        renderer: { element: scoreRef.current, width: 1000, height: 220, backend: 'svg' }
+      // Create VexFlow SVG renderer directly
+      const renderer = new Renderer(scoreRef.current, Renderer.Backends.SVG);
+      renderer.resize(1000, 220);
+      const context = renderer.getContext();
+      context.setFont('Arial', 10, '').setBackgroundFillStyle('#fff');
+
+      // Create a stave
+      const stave = new Stave(10, 40, 900);
+      stave.addClef(instrument.clef === 'bass' ? 'bass' : 'treble');
+      stave.addTimeSignature('4/4');
+      stave.setContext(context).draw();
+
+      // Convert music notes to VexFlow StaveNotes
+      const notes = music.map(note => {
+        let durationStr = 'q';
+        if (note.duration === 0.25) durationStr = '16';
+        else if (note.duration === 0.5) durationStr = '8';
+        else if (note.duration === 1) durationStr = 'q';
+        else if (note.duration === 2) durationStr = 'h';
+        else if (note.duration === 4) durationStr = 'w';
+        return new StaveNote({
+          clef: instrument.clef === 'bass' ? 'bass' : 'treble',
+          keys: [`${note.note.toLowerCase()}/${note.octave}`],
+          duration: durationStr
+        });
       });
 
-      const score = factory.EasyScore();
-
-      // Split notes into measures of 4 beats (for 4/4 time)
+      // Group notes into measures of 4 beats (for 4/4 time)
       const measures = [];
       let currentMeasure = [];
       let currentBeats = 0;
       music.forEach(note => {
         currentMeasure.push(note);
         currentBeats += note.duration;
-        if (currentBeats >= 4) {
+        if (Math.abs(currentBeats - 4) < 0.0001) { // floating point safe
           measures.push(currentMeasure);
           currentMeasure = [];
           currentBeats = 0;
@@ -39,30 +67,15 @@ const MusicScore = ({ music, instrument, musicKey, tempo }) => {
         measures.push(currentMeasure);
       }
 
-      const notesString = measures
-        .map(measureNotes =>
-          measureNotes.map(note => {
-            const noteName = note.note;
-            const octave = note.octave;
-            const duration = note.duration;
-            let durationStr = 'q';
-            if (duration === 0.25) durationStr = '16';
-            else if (duration === 0.5) durationStr = '8';
-            else if (duration === 1) durationStr = 'q';
-            else if (duration === 2) durationStr = 'h';
-            else if (duration === 4) durationStr = 'w';
-            return `${noteName}${octave}/${durationStr}`;
-          }).join(', ')
-        )
-        .join(' | ');
-
-      const voice = score.voice(score.notes(notesString));
-      const stave = factory.Stave({
-        voices: [voice]
+      // Create voices for each measure and format them
+      let x = 10;
+      measures.forEach(measureNotes => {
+        const voice = new Voice({ num_beats: 4, beat_value: 4 });
+        voice.addTickables(measureNotes);
+        new Formatter().joinVoices([voice]).format([voice], 900 / measures.length);
+        voice.draw(context, stave);
+        x += 900 / measures.length;
       });
-      stave.addClef(instrument.clef === 'bass' ? 'bass' : 'treble');
-      stave.addTimeSignature('4/4');
-      factory.draw();
     } catch (error) {
       console.error('Error rendering music score:', error);
       scoreRef.current.innerHTML = `

@@ -34,13 +34,36 @@ const instruments = [
 
 // Generate random notes for an instrument
 function generateNotes(instrument, key, numBars, tempo) {
-  // Always generate 8 quarter notes of C4 for preview
-  return Array.from({ length: numBars * 4 }, (_, i) => ({
-    note: 'C',
-    octave: 4,
-    duration: 1,
-    startBeat: i
-  }));
+  // Define possible note names (chromatic scale)
+  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  // Define possible durations (in beats)
+  const durations = [1, 0.5, 0.25, 2]; // quarter, eighth, sixteenth, half
+
+  const notes = [];
+  let startBeat = 0;
+  for (let bar = 0; bar < numBars; bar++) {
+    let beatsLeft = 4;
+    while (beatsLeft > 0) {
+      // Pick a random duration that fits in the remaining beats
+      const possibleDurations = durations.filter(d => d <= beatsLeft);
+      const duration = possibleDurations[Math.floor(Math.random() * possibleDurations.length)];
+      // Pick a random note name
+      const note = noteNames[Math.floor(Math.random() * noteNames.length)];
+      // Pick a random octave within the instrument's range
+      const minOctave = Math.floor(instrument.range.min / 12);
+      const maxOctave = Math.floor(instrument.range.max / 12);
+      const octave = Math.floor(Math.random() * (maxOctave - minOctave + 1)) + minOctave;
+      notes.push({
+        note,
+        octave,
+        duration,
+        startBeat
+      });
+      startBeat += duration;
+      beatsLeft -= duration;
+    }
+  }
+  return notes;
 }
 
 // Create a new session
