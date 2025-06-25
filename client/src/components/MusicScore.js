@@ -15,9 +15,9 @@ const MusicScore = ({ music, instrument, musicKey, tempo }) => {
     console.log('scoreRef.current:', scoreRef.current);
 
     try {
-      // Explicitly set renderer type to SVG (backend: 1)
+      // Explicitly set renderer type to SVG (backend: 'svg' for VexFlow 4.x+)
       const factory = new Factory({
-        renderer: { element: scoreRef.current, width: 1000, height: 220, backend: 1 }
+        renderer: { element: scoreRef.current, width: 1000, height: 220, backend: 'svg' }
       });
 
       const score = factory.EasyScore();
