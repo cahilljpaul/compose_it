@@ -1,0 +1,159 @@
+.session {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #1a1a1a;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #1a1a1a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.instruments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.instrument-btn {
+  background: white;
+  color: #1a1a1a;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.instrument-btn:hover {
+  background: #f8f8f8;
+  border-color: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.instrument-btn h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.instrument-btn p {
+  margin: 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.music-score-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.score-display {
+  margin: 20px 0;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  overflow-x: auto;
+}
+
+.vexflow-score {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vexflow-score svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.music-notes {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.music-notes h4 {
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.notes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.note-item {
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.note-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1rem;
+}
+
+.note-duration {
+  color: #666;
+  font-size: 12px;
+}
+
+.note-beat {
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .instruments-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  
+  .score-display {
+    padding: 16px;
+  }
+  
+  .notes-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .note-item {
+    padding: 10px;
+  }
+} 

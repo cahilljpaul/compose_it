@@ -1,0 +1,89 @@
+.music-score-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.score-display {
+  margin: 20px 0;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  overflow-x: auto;
+}
+
+.vexflow-score {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vexflow-score svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.music-notes {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.music-notes h4 {
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.notes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.note-item {
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.note-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1rem;
+}
+
+.note-duration {
+  color: #666;
+  font-size: 12px;
+}
+
+.note-beat {
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .score-display {
+    padding: 16px;
+  }
+  
+  .notes-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .note-item {
+    padding: 10px;
+  }
+} 
